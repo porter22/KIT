@@ -1,0 +1,23 @@
+{% extends "index.html" %}
+
+{% block graph %}
+
+<!-- Area Chart -->
+<div class="col-xl-12 col-lg-10">
+  <div class="card shadow mb-4">
+   
+    <!-- Card Body -->
+    <div class="card-body">
+      <div class="chart-area">
+        <!-- <canvas id="myAreaChart"></canvas> -->
+        <div id="tree-container">
+          <button type="button" onclick="handleSave()" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">Save JSON</button>
+          <input type="file" id="uploader" onchange="handleLoad()"  />
+        </div>
+        <div id="infodiv"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
