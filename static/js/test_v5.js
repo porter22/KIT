@@ -1,7 +1,11 @@
 var radius = 12;
 
-var distY = 30;
-var distX = 230; //separation between levels within one domain
+var distY = 50;
+//var distX = 430;
+//separation between levels within one domain
+var new_distX = 250
+
+var domain_margin = 120;
 
 var pixelmultiplier = 6; //width of label letter - needed to account for long labels
 default_json_link = "https://gist.githubusercontent.com/porter22/f3b65623fa17a4c1f6a9528b29e82b8e/raw/929ed9db6e6d6ab43eb052021628246ee6dae110/Nov12_2019.json"
@@ -285,7 +289,7 @@ function draw_all(json_string) {
       for (var k = 0; k < traces.length; k++) {
           //take each trace and make it full
           tracenodes = traces[k].nodeids.split(",");
-          //console.log("tracenodes:", tracenodes);
+          console.log("tracenodes:", tracenodes);
           var fulltrace = getFullTraceFromShortTrace(tracenodes);
           //console.log("fulltrace:", fulltrace);
           resultarray.push(fulltrace);
@@ -301,7 +305,7 @@ function draw_all(json_string) {
       //we assume that array is sorted
       for (var j = 0; j < traceArray.length; j++) {
         var curnode = traceArray[j];
-        //console.log("current node:", nodes[curnode]);
+        console.log("current node:", nodes[curnode]);
         var domroot = getDomainRoot(nodes[curnode], []);
         domroot.unshift(nodes[curnode]);
         //console.log("domroot:", domroot);
@@ -314,7 +318,7 @@ function draw_all(json_string) {
   
     //returns an array of all the ancestors of that node within domain
     function getDomainRoot(node, resultarray) {
-      //console.log("getDomainRoot for node:", node);
+      console.log("getDomainRoot for node:", node);
       //console.log("node:", nodes[node.nodeid]);
       var parent = getParent(node.nodeid, nodes, treelinks);
       //console.log("parent:", parent);
@@ -477,46 +481,27 @@ function draw_all(json_string) {
         //console.log("number of children", children.length);
         return children
     }//function
-  
-    //calculates starting positions X for each domain, adds maxlevel parameter for each domain
-    function calcDomainPositionsX(domarray) {
-      //for each domain, find maxlevel depths
-      //find sum of levels for all domains
-      //find separation between levels = totalwidth/sum of levels
-      sum = 0;
-      //console.log("domain:", domarray);
-      //for(var domain in domaindict) {
-      for (var j = 0; j < domarray.length; j++) {
-  
-        var maxlevel = getMaxLevels(domarray[j]);
-        var longestword = getLongWordLength(domarray[j]);
-        //console.log("domain:", domain, "maxlevel:", maxlevel);
-        domarray[j].maxlevel = maxlevel;
-        //console.log("domain:", domarray[j].name, "maxlevel:", domarray[j].maxlevel);
-        // do something with "key" and "value" variables
-        sum = sum + maxlevel;
-  
-        if (j > 0) {
-          domarray[j].startX = domarray[j-1].maxlevel * distX * j + longestword * pixelmultiplier;
-        } else {
-          domarray[j].startX = 0;
-        }
-      }
-  
-      }//end function
+    
+
+    function updateDomainStartingPositionsX(domarray) {
+      //find the most rightmost node in a domain
+
+    }
   
     function getLongWordLength(domainObj) {
-  
-      //console.log("domainObj:", domainObj);
+      console.log("getLongWordLength:");
+      console.log("domainObj:", domainObj);
       //calculates the length of the longest word
       var nodes = domainObj.nodes;
       var max = 0
       for (var j = 0; j < nodes.length; j++) {
-        if (nodes[j].name.length > max) {
-            max = nodes[j].name.length
+        for (var i = 0; i < nodes[j].length; i++) {
+          if (nodes[j][i].name.length > max) {
+              max = nodes[j][i].name.length
+          }
         }
       }
-      //console.log("max length for domain:", max);
+      console.log("max length for domain:", max);
       return max
     }
   
@@ -537,7 +522,7 @@ function draw_all(json_string) {
       for (var j = 0; j < domarray.length; j++) { //CHANGE FOR 0 WHEN DONE WITH TESTING ONE DOMAIN
         var rootNode = domarray[j].nodes[0][0];
   
-        //console.log("initial root:", rootNode);
+        console.log("initial root:", rootNode);
         var prevdommaxlevel = 0; //max level of the previous domain
         if (j > 0)
           prevdommaxlevel = domarray[j-1].maxlevel
@@ -596,7 +581,7 @@ function draw_all(json_string) {
   
       var children = getChildren(node.nodeid,nodes, treelinks);
       children.forEach(function(child) {
-        initializeNodes(child,depth + distX,domainindex, prevdomainmaxlevel);
+        initializeNodes(child,depth + new_distX,domainindex, prevdomainmaxlevel);
       });
     } //end function
   
@@ -732,7 +717,7 @@ function draw_all(json_string) {
         console.log("nodekeysmax:", nodekeysmax);
         console.log("init level:", node.positionX + distX);*/
         //for (var level = node.positionX + distX; level <= Math.min(siblingkeysmax, nodekeysmax); level++) {
-        for (var level = node.positionX + distX; level <= siblingkeysmax; level++) {
+        for (var level = node.positionX + new_distX; level <= siblingkeysmax; level++) {
           //console.log("level:", level);
           var distance = nodeContour[level] - siblingContour[level];
           if (distance + shiftValue < minDistance)
@@ -793,7 +778,7 @@ function draw_all(json_string) {
           if (nodeContour.hasOwnProperty(key)) {
             // do stuff
             if (nodeContour[key] + shiftAmount < 0)
-              shiftAmount = (nodeContour[y] * -1);
+              shiftAmount = (nodeContour[key] * -1);
           }
       }
   
@@ -910,7 +895,7 @@ function draw_all(json_string) {
       //console.log("maxlevel domainnodes:", domainObj.nodes);
       var nodes = domainObj.nodes;
       maxlevel = nodes[0].level;
-      for (j = 0; j < nodes.length; j++) {
+      for (var j = 0; j < nodes.length; j++) {
         if (nodes[j].level > maxlevel)
           maxlevel = nodes[j].level;
       }
@@ -942,8 +927,9 @@ function draw_all(json_string) {
     // define the baseSvg, attaching a class for styling and the zoomListener
     var baseSvg = d3.select("#tree-container").append("svg")
         .attr("id", "baseSvg")
-        .attr("width", viewerWidth)
-        .attr("height", viewerHeight - 50)
+        //.attr("width", viewerWidth)
+        .attr("width", "100%")
+        .attr("height", 1000)
         .attr("class", "overlay")
         .call(zoomListener);
         //.attr("transform", "translate(" + 150 + "," + 150 + ")")
@@ -977,10 +963,53 @@ function draw_all(json_string) {
   
   //console.log('domainarray:', domarray);
   
-  calcDomainPositionsX(domarray);
+  //DETERMINE STARTING X COORDINATES FOR ROOT NODES OF EACH DOMAIN
+
+  //get sum of maxlevels
+  var sum = 0;
+  console.log("domarray is size:", domarray.length);
+  for (var j = 0; j < domarray.length; j++) {
+    var maxlevel = getMaxLevels(domarray[j]);
+    domarray[j].maxlevel = maxlevel
+    domarray[j].sum_prev = sum
+    sum = sum + maxlevel;
+  }
+  console.log("sum max levels:", sum);
+
+  //https://stackoverflow.com/questions/18147915/get-width-height-of-svg-element
+  var el   = document.getElementById("tree-container"); // or other selector like querySelector()
+  var rect = el.getBoundingClientRect(); // get the bounding rectangle
+
+  console.log( "svg width: ", rect.width);
+  console.log( "viewer width: ", viewerWidth);
+
+  //distance between levels of each domain
+  //var new_distX = (rect.width - (domain_margin * domarray.length)) / sum
+  
+//  console.log("new_distx:", new_distX)
+
+  
+
+  domarray[0].startX = 0;
+
+  //starting position X for each domain
+  for (var j = 1; j < domarray.length; j++) {
+    var longestword = getLongWordLength(domarray[j]);
+    //domarray[j].startX = domain_margin * (j + 1) + domarray[j].sum_prev*new_distX + longestword * pixelmultiplier;
+    domarray[j].startX = domain_margin * domarray[j-1].maxlevel * (j + 1) + domarray[j].sum_prev*new_distX;
+    console.log("domarray[j].startX = domain_margin * (j + 1) + domarray[j].sum_prev*new_distX + longestword * pixelmultiplier;")
+    //console.log(domarray[j].startX, "=", domain_margin, "*", j + 1, "+", domarray[j].sum_prev,"*",new_distX,'+', longestword, '*', pixelmultiplier)
+    console.log(domarray[j].startX, "=", domain_margin, "*", j + 1, "+", domarray[j].sum_prev,"*",new_distX)
+  }
+  
+  //calcDomainPositionsX(domarray);
   //manual HACK - FIX LATER
-  domarray[2].startX = domarray[2].startX - 150;
-  domarray[3].startX = domarray[3].startX - 450;
+  //domarray[2].startX = domarray[2].startX - 150;
+  //domarray[3].startX = domarray[3].startX - 450;
+  for (var i = 0; i < domarray.length; i += 1) {
+    console.log("domarray", domarray[i]);
+  }
+  
   
     //calcDomainPositionsY(domarray);
   
@@ -1096,10 +1125,10 @@ function draw_all(json_string) {
         //DOMAINS - WORK HERE
         //console.log("posX:",viewerWidth, hsep*d.level);
         //d.positionX = viewerWidth - hsep*(maxlevel - d.level);
-        nodedomain = d.domain;
-        nodelevel = d.level;
-        domainstartX = getDomainElement(nodedomain,domarray).startX;
-        domainmaxlevel = getDomainElement(nodedomain,domarray).maxlevel;
+        //nodedomain = d.domain;
+        //nodelevel = d.level;
+        //domainstartX = getDomainElement(nodedomain,domarray).startX;
+        //domainmaxlevel = getDomainElement(nodedomain,domarray).maxlevel;
         //d.positionX = viewerWidth - domainstartX - hsep*(domainmaxlevel - nodelevel);
   
         //console.log("domainstartX:",  domainstartX, "posX:",  d.positionX );
@@ -1119,10 +1148,7 @@ function draw_all(json_string) {
       //.on("click", handleMouseClick)
       .attr("r", radius)
       //.attr("fill", "lightsteelblue")
-      .attr("fill", function(d, i) {
-        if (d.imglink == 'None') return 'lightsteelblue'
-        else return 'green'
-      })
+      .attr("fill", "lightsteelblue")
       .attr("stroke", "steelblue")
       .attr("stroke-width", function(d) {
         return d/2;
@@ -1516,11 +1542,9 @@ function draw_all(json_string) {
         .attr("fill", function(d) {
             if (d3.select(this).attr('fill') == "red") {
               return "red";
-            } else if (d.imglink == 'None'){
-              return "lightsteelblue";
             } else {
-              return "green";
-            }
+              return "lightsteelblue";
+            } 
           });
   
         svgGroup.selectAll(".edges")
@@ -1743,6 +1767,9 @@ function draw_all(json_string) {
         });
         newnode.children = children_arr
         delete newnode.parent;
+        delete newnode.imglink;
+        delete newnode.prodlink;
+        delete newnode.desc;
         clean_nodes.push(newnode)
       });
   
@@ -1763,14 +1790,6 @@ function draw_all(json_string) {
       /* Create the text for each block */
       elemEnter.append("text")
       .attr("dx", function(d, i) {
-          //console.log("Label Enter D:",d);
-          //return viewerWidth - hsep*(maxlevel - d.level);
-          nodedomain = d.domain;
-          nodelevel = d.level;
-          domainstartX = getDomainElement(nodedomain,domarray).startX;
-          domainmaxlevel = getDomainElement(nodedomain,domarray).maxlevel;
-          //d.positionX = viewerWidth - domainstartX - hsep*(domainmaxlevel - nodelevel);
-          //console.log("domainstartX:",  domainstartX, "posX:",  d.positionX );
           return d.positionX + 5;
       })
       .attr("dy", function(d, i) {
@@ -1790,7 +1809,8 @@ function draw_all(json_string) {
           /*if (returnstring.length > 17)
             returnstring = returnstring.slice(0,17) + "\r\n" + returnstring.slice(17)
           */
-          return returnstring})
+          //return returnstring + " " + d.positionX})
+          return returnstring })
       .attr("stroke", "black")
       .attr("font-size", "26px")
       .attr("text-transform", "uppercase")
@@ -1855,11 +1875,31 @@ function get_new_node_posY(clicked_node) {
 
 function handleSave () {
   //getItem clean_json from localStorage
-  var json_nodes = localStorage.getItem("nodes_pos")
+  var json_nodes = JSON.parse(localStorage.getItem("clean_nodes"))
+  var json_links = JSON.parse(localStorage.getItem("clean_links"))
+  var json_traces = JSON.parse(localStorage.getItem("traces"))
+
+  console.log("downloaded json nodes", json_nodes);
+
+  //remove unnecessary variables
+  json_nodes.forEach(function(node){
+    delete node.positionX
+    delete node.positionY
+    delete node.mod
+    delete node.width
+    delete node.height
+    delete node.children
+  })
+  var new_json = {}
+  new_json.links = json_links
+  new_json.nodes = json_nodes
+  new_json.traces = json_traces
+  //update_graph(new_json, clicked_node);
+  var new_json_str = JSON.stringify(new_json)
   //save to local computer
   console.log("downloading json");
 
-  download(json_nodes, 'json.txt', 'text/plain');
+  download(new_json_str, 'json.txt', 'text/plain');
 }
 
 //taken from https://stackoverflow.com/questions/4184944/
@@ -1890,6 +1930,5 @@ function handleLoad() {
 }
 
 /*TODO:
- - remove unnecessary fields
- - fix layout
+ - dtu logo
 */
