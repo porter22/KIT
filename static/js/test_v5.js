@@ -5,7 +5,7 @@ var distY = 50;
 //separation between levels within one domain
 var new_distX = 250
 
-var domain_margin = 120;
+var domain_margin = 150;
 
 var pixelmultiplier = 6; //width of label letter - needed to account for long labels
 default_json_link = "https://gist.githubusercontent.com/porter22/f3b65623fa17a4c1f6a9528b29e82b8e/raw/929ed9db6e6d6ab43eb052021628246ee6dae110/Nov12_2019.json"
