@@ -5,7 +5,7 @@ var distY = 50;
 //separation between levels within one domain
 var new_distX = 250
 
-var domain_margin = 150;
+var domain_margin = 100;
 
 var pixelmultiplier = 6; //width of label letter - needed to account for long labels
 default_json_link = "https://gist.githubusercontent.com/porter22/f3b65623fa17a4c1f6a9528b29e82b8e/raw/929ed9db6e6d6ab43eb052021628246ee6dae110/Nov12_2019.json"
@@ -917,7 +917,7 @@ function draw_all(json_string) {
   
     // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
     var zoomListener = d3.behavior.zoom()
-                                  .scaleExtent([0.4, 0.9])
+                                  .scaleExtent([0.2, 0.9])
                                   .on("zoom", zoom);
   
     /*//get current trial number
@@ -931,12 +931,15 @@ function draw_all(json_string) {
         .attr("width", "100%")
         .attr("height", 1000)
         .attr("class", "overlay")
-        .call(zoomListener);
-        //.attr("transform", "translate(" + 150 + "," + 150 + ")")
-  
+        .call(zoomListener)
+        //.attr("transform", "translate(" + 150 + "," + 150 + ")scale(0.1,0.1)")
+    
+    //baseSvg.attr("transform","translate(33,54)scale(0.28,0.28)");
+
     // Append a group which holds all nodes and which the zoom Listener can act upon.
     var svgGroup = baseSvg.append("g")
                           .attr("id", "svgGroup")
+                          .attr("class", "overlay")
                           .call(zoomListener);
   
     svgGroup.on("dblclick.zoom", null);
@@ -948,7 +951,7 @@ function draw_all(json_string) {
     }
   
     //svgGroup.attr("transform","translate(25,50)scale(.4,.4)");
-    svgGroup.attr("transform","translate(150,70)scale(.3,.3)");
+    svgGroup.attr("transform","translate(33,54)scale(0.28,0.28)");
   
     /*svgGroup.append("div")
             .attr("id", "infodiv");*/
@@ -1812,7 +1815,7 @@ function draw_all(json_string) {
           //return returnstring + " " + d.positionX})
           return returnstring })
       .attr("stroke", "black")
-      .attr("font-size", "26px")
+      .attr("font-size", "34px")
       .attr("text-transform", "uppercase")
       .attr("stroke-width", 1);
   
