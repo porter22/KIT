@@ -1,9 +1,9 @@
-var radius = 12;
+var radius = 20;
 
-var distY = 50;
+var distY = 100;
 //var distX = 430;
 //separation between levels within one domain
-var new_distX = 250
+var new_distX = 350
 
 var domain_margin = 100;
 
@@ -332,6 +332,8 @@ function draw_all(json_string) {
       }
       return resultarray;
     }
+
+    console.log('nodes for domarray:', nodes)
   
     function getDomainArray() {
       domarray = [];
@@ -961,7 +963,7 @@ function draw_all(json_string) {
             //.append("svg:g")
             .attr("transform","translate(100,50)scale(.5,.5)");*/
   
-  //MAIN FLOW STARTS HERE
+  //ANCHOR MAIN FLOW STARTS HERE
   var domarray = getDomainArray();
   
   //console.log('domainarray:', domarray);
@@ -1047,7 +1049,7 @@ function draw_all(json_string) {
       .attr("stroke", "black")
       .attr("stroke-width", 3)
       .style("text-transform", "uppercase")
-    .style("font-size", 48);
+    .style("font-size", 72);
     /*.attr("id", function(d, i) {
         return d.nodeid
     })
@@ -1143,6 +1145,7 @@ function draw_all(json_string) {
         return d.positionY;
   
       })
+      .attr('description', function(d, i) {return d.desc})
       .on("mouseover", handleMouseOver) //http://bl.ocks.org/WilliamQLiu/76ae20060e19bf42d774
       .on("mouseout", handleMouseOut)
       .on("contextmenu", handleRightClick)
@@ -1158,7 +1161,7 @@ function draw_all(json_string) {
       })
       ;
   
-      cc.on('click', handleMouseClickLink); //in this case not data, but mouseevent is passed
+      //cc.on('click', handleMouseClickLink); //in this case not data, but mouseevent is passed
       cc.on('dblclick', handleDoubleClick); //in this case not data, but mouseevent is passed
   
       var isSomethingClicked = false;
@@ -1400,72 +1403,35 @@ function draw_all(json_string) {
       }
   
   
-      function handleMouseClickLink(d, i) {
-        console.log("mouse click event link:", d);
-  
-        console.log("button:", d.button);
+      function show_description(description) {
         
-        if (d.button == 2) {
-          console.log("button is two, do nothing");
-          return;
-        }
-  
-        var clickedElem = d3.select(d.srcElement);
-        var clickedElemData = clickedElem.data()[0];
         //THIS IS FOR FILE OPENING - DO NOT REMOVE
-        var infodiv = document.getElementById("infodiv");
+        var infodiv = document.getElementById("desc-container");
   
         d3.selectAll(".infoimg").remove();
   
-        var p = document.createElement('p');
-        p.textContent = "Entity name:" + clickedElemData.name;
         var pdesc = document.createElement('p');
-        pdesc.textContent ="Description:" + clickedElemData.desc
-        var alink = document.createElement('a');
+        //pdesc.textContent ="Description:" + clickedElemData.description
+        pdesc.textContent ="Description:" + description
+        /*var alink = document.createElement('a');
         alink.textContent ="Read more link:" + clickedElemData.prodlink
-        alink.href = clickedElemData.prodlink
-        p.setAttribute("class","infoimg");
+        alink.href = clickedElemData.prodlink*/
+        //p.setAttribute("class","infoimg");
         pdesc.setAttribute("class","infoimg");
-        alink.setAttribute("class","infoimg");
+        //alink.setAttribute("class","infoimg");
   
-        var filename = "./files/" + clickedElemData.domain + "/" + clickedElemData.name + ".jpg";
+        //var filename = "./files/" + clickedElemData.domain + "/" + clickedElemData.name + ".jpg";
   
-        infodiv.appendChild(p);
+        //infodiv.appendChild(p);
         infodiv.appendChild(pdesc);
-        infodiv.appendChild(alink);
+        //infodiv.appendChild(alink);
   
-        var infoimg = document.createElement('img');
+        /*var infoimg = document.createElement('img');
         infoimg.setAttribute("class","infoimg");
         infoimg.src = filename;
         infoimg.width = 300;
         infoimg.height = 300;
-  
-        infodiv.appendChild(infoimg);
-  
-        /*switch(clickedElemData.level) {
-          case 3:
-          var filename = "./files/" + clickedElemData.domain + "/" + clickedElemData.name + ".jpg";
-          var infoimg = document.createElement('img');
-          infoimg.setAttribute("class","infoimg");
-          infoimg.src = filename;
-          infoimg.width = 300;
-          infoimg.height = 300;
-          infodiv.appendChild(p);
-          infodiv.appendChild(infoimg);
-          break;
-          case 2:
-          var filename = "./files/" + clickedElemData.domain + "/" + clickedElemData.name + " ibd.png";
-          var infoimg = document.createElement('img');
-          infoimg.setAttribute("class","infoimg");
-          infoimg.src = filename;
-          infoimg.width = 300;
-          infoimg.height = 300;
-          infodiv.appendChild(p);
-          infodiv.appendChild(infoimg);
-          break;
-  
-        }*/
-  
+        infodiv.appendChild(infoimg);*/
       }
   
       //highlight all nodes from trace into given color
@@ -1528,6 +1494,12 @@ function draw_all(json_string) {
             highlightNodes(svgGroup, curtrace, "orange");
   
             highlightEdges(svgGroup, curtrace, "orange");
+
+            //console.log()
+
+            var description = d3.select(this).attr('description')
+
+            show_description(description);
   
   
             //IMPLEMENT DOMAINS, ENABLE TRACEBILITY BETWEEN DOMAINS
@@ -1540,6 +1512,9 @@ function draw_all(json_string) {
           fill: "lightsteelblue",
           r: radius
         });*/ //THIS IS FOR ONE, CURRENT ELEMENT ONLY
+
+        d3.selectAll(".infoimg").remove();
+
         //find nodes from trace, highlight them
         svgGroup.selectAll(".nodes")
         .attr("fill", function(d) {
@@ -1791,7 +1766,27 @@ function draw_all(json_string) {
       //LABELS
       //https://stackoverflow.com/questions/13615381/d3-add-text-to-circle
       /* Create the text for each block */
-      elemEnter.append("text")
+
+      elemEnter.append("foreignObject")
+      .attr("width", 480)
+      .attr("height", 80)
+      .attr("x", function(d, i) {
+        return d.positionX + 20;
+      })
+      .attr("y", function(d, i) {
+        return d.positionY - 30;
+      })
+      .append("xhtml:div")
+      .style("font", "42px 'Arial'")
+      .style("line-height", "40px")
+
+      .html(function(d, i) {
+        return d.name;
+      });
+      //.style("left", (d.x + 50 + "px"))
+      //.style("top", (d.y +"px"));
+
+      /*elemEnter.append("text")
       .attr("dx", function(d, i) {
           return d.positionX + 5;
       })
@@ -1809,19 +1804,60 @@ function draw_all(json_string) {
           if (d.level == 1)
             returnstring = returnstring.toUpperCase();
   
-          /*if (returnstring.length > 17)
-            returnstring = returnstring.slice(0,17) + "\r\n" + returnstring.slice(17)
-          */
+          if (returnstring.length > 10)
+            returnstring = returnstring.slice(0,10) + "\r\n" + returnstring.slice(10)
+          
           //return returnstring + " " + d.positionX})
           return returnstring })
       .attr("stroke", "black")
-      .attr("font-size", "34px")
+      .attr("font-size", "48px")
       .attr("text-transform", "uppercase")
-      .attr("stroke-width", 1);
+      .attr("stroke-width", 1)
+      .append("foreignObject")
+        .attr("width", 480)
+        .attr("height", 500)
+        .append("xhtml:body")
+        .style("font", "14px 'Helvetica Neue'")
+        .html("<h1>An HTML Foreign Object in SVG</h1>");*/
+  
   
     //creates new localstorage variable that stores node positions
     localStorage.setItem("nodes_pos", JSON.stringify(clean_nodes))
   
+  });
+}
+
+//wrapping of long labels, adapted from here: https://bl.ocks.org/mbostock/7555321
+function wrap(text, width) {
+  text.each(function() {
+    var text = d3.select(this),
+        words = text.text().split(/\s+/).reverse(),
+        word,
+        line = [],
+        lineNumber = 0,
+        lineHeight = 0.2, // ems
+        y = text.attr("y"),
+        dy = parseFloat(text.attr("dy")),
+        tspan = text.text(null).append("tspan").attr("dy", dy + "px");
+
+        console.log('text:', text);
+        console.log('words:', words);
+        console.log('y:', y);
+        console.log('dy:', dy);
+        console.log('tspan:', tspan);
+        
+
+    while (word = words.pop()) {
+      line.push(word);
+      tspan.text(line.join(" "));
+      if (tspan.node().getComputedTextLength() > width) {
+        line.pop();
+        tspan.text(line.join(" "));
+        line = [word];
+        //tspan = text.append("tspan").attr("dy", ++lineNumber * lineHeight + dy + "px").text(word);
+        tspan = text.append("tspan").text(word);
+      }
+    }
   });
 }
 
